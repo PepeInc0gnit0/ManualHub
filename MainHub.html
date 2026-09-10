@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#090b10">
+<title>Manual Hub</title>
+<style>
+:root {
+  --bg: #080a0f;
+  --bg-gradient-1: #313b8925;
+  --bg-gradient-2: #8b5cf625;
+  --bg-gradient-3: #0d1017;
+  --panel: rgba(255, 255, 255, .055);
+  --panel-solid: #0d1017c9;
+  --panel-hover: rgba(255, 255, 255, .08);
+  --modal-bg: #10131b;
+  --line: rgba(255, 255, 255, .1);
+  --text: #f5f6fb;
+  --muted: #99a1b2;
+  --accent: #7d8cff;
+  --star-off: #5e687a;
+  --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+  --card-hover-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --grid-pattern: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] {
+  --bg: #f4f6fa;
+  --bg-gradient-1: #313b8910;
+  --bg-gradient-2: #8b5cf610;
+  --bg-gradient-3: #eef1f8;
+  --panel: rgba(0, 0, 0, .04);
+  --panel-solid: rgba(255, 255, 255, 0.85);
+  --panel-hover: rgba(0, 0, 0, .08);
+  --modal-bg: #ffffff;
+  --line: rgba(0, 0, 0, .12);
+  --text: #111522;
+  --muted: #596173;
+  --accent: #4f5dff;
+  --star-off: #9aa2b1;
+  --card-bg: #ffffff;
+  --card-hover-bg: #f8f9fe;
+  --shadow-color: rgba(0, 0, 0, 0.08);
+  --grid-pattern: rgba(0, 0, 0, 0.04);
+}
+
+*{box-sizing:border-box}
+html,body{
+  margin:0;
+  min-height:100%;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--text);
+  background:radial-gradient(circle at 15% 0%,var(--bg-gradient-1),transparent 30%),
+             radial-gradient(circle at 90% 10%,var(--bg-gradient-2),transparent 25%),
+             linear-gradient(145deg,var(--bg),var(--bg-gradient-3));
+  overflow-x:hidden;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.modal-open { overflow: hidden; }
+
+body:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.3;
+  background-image:linear-gradient(var(--grid-pattern) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--grid-pattern) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(#000,transparent 80%);
+}
+
+.app{width:min(1320px,calc(100% - 42px));margin:auto;padding:24px 0 60px}
+.top{height:58px;display:flex;align-items:center;justify-content:space-between;margin-bottom:65px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:-.03em;text-decoration:none;color:inherit}
+.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#7280ff,#a46bed);box-shadow:0 12px 40px #7180ff35;color:#fff}
+.brand small{display:block;color:var(--muted);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-top:2px}
+
+.actions{display:flex;gap:8px}
+.icon{width:42px;height:42px;border:1px solid var(--line);background:var(--panel);border-radius:13px;color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.2s}
+.icon:hover, .icon:focus-visible{background:var(--panel-hover);border-color:var(--accent);outline:none}
+
+.hero{text-align:center;max-width:900px;margin:auto}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid rgba(125, 140, 255, 0.3);background:rgba(125, 140, 255, 0.08);border-radius:999px;color:var(--accent);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 14px var(--accent)}
+
+h1{font-size:clamp(43px,6vw,76px);line-height:.98;letter-spacing:-.06em;margin:22px 0 18px}
+.grad{background:linear-gradient(100deg,var(--text),var(--accent),#c99eff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:650px;margin:auto;color:var(--muted);line-height:1.7;font-size:15px}
+
+.searchbox{max-width:780px;margin:32px auto 0;display:flex;align-items:center;gap:13px;padding:8px 10px 8px 18px;border:1px solid var(--line);background:var(--panel-solid);backdrop-filter:blur(20px);border-radius:18px;box-shadow:0 25px 70px var(--shadow-color);transition:.2s}
+.searchbox:focus-within{border-color:var(--accent);box-shadow:0 25px 70px var(--shadow-color),0 0 0 4px rgba(125, 140, 255, 0.15)}
+.searchbox span{color:var(--muted);font-size:20px}
+.searchbox input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--text);font-size:15px}
+.searchbox input::placeholder{color:var(--muted);opacity:0.8}
+.kbd{font-size:11px!important;border:1px solid var(--line);padding:5px 8px;border-radius:7px;color:var(--muted)}
+.clear{display:none;border:0;background:transparent;color:var(--muted);font-size:20px;cursor:pointer;padding:0 4px}
+.clear.show{display:block}
+.clear:hover{color:var(--text)}
+
+.section{margin-top:62px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;margin-bottom:17px}
+.head h2{margin:0;font-size:18px;letter-spacing:-.025em}
+.head p{margin:5px 0 0;color:var(--muted);font-size:12px}
+
+.filters{display:flex;gap:7px;flex-wrap:wrap}
+.filter{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:8px 12px;border-radius:999px;font-size:11px;cursor:pointer;transition:.2s}
+.filter:hover{color:var(--text);background:var(--panel-hover)}
+.filter.active{color:var(--text);background:rgba(125, 140, 255, 0.15);border-color:var(--accent)}
+
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.card{position:relative;min-height:215px;padding:23px;border:1px solid var(--line);border-radius:24px;background:var(--card-bg);overflow:hidden;cursor:pointer;transition:.25s;outline:none}
+.card:before{content:"";position:absolute;width:180px;height:180px;right:-80px;top:-80px;border-radius:50%;background:var(--glow);filter:blur(42px);opacity:.12;pointer-events:none}
+.card:hover, .card:focus-visible{transform:translateY(-5px);border-color:var(--accent);background:var(--card-hover-bg);box-shadow:0 20px 60px var(--shadow-color)}
+
+.toprow{display:flex;justify-content:space-between;align-items:center}
+.appicon{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;background:var(--panel);border:1px solid var(--line);font-size:22px}
+.star{border:0;background:transparent;color:var(--star-off);font-size:20px;cursor:pointer;padding:4px;border-radius:8px;transition:.2s}
+.star:hover{transform:scale(1.15)}
+.star.on{color:#ffd66b}
+
+.card h3{margin:25px 0 7px;font-size:19px;letter-spacing:-.03em}
+.card p{margin:0;color:var(--muted);font-size:12.5px;line-height:1.55;width:100%}
+.bottom{display:flex;align-items:center;gap:9px;margin-top:24px;color:var(--muted);font-size:10px}
+.tag{padding:5px 8px;border-radius:7px;background:var(--panel);border:1px solid var(--line)}
+.arrow{margin-left:auto;font-size:18px;transition:.2s}
+.card:hover .arrow, .card:focus-visible .arrow{transform:translateX(4px);color:var(--accent)}
+
+.recent{margin-top:56px}
+.recentgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.recentitem{display:flex;align-items:center;gap:11px;padding:13px 15px;border:1px solid var(--line);background:var(--panel);border-radius:14px;cursor:pointer;transition:.2s;outline:none}
+.recentitem:hover, .recentitem:focus-visible{background:var(--panel-hover);border-color:var(--accent)}
+.mini{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;background:var(--panel)}
+.recentitem strong{display:block;font-size:12px}
+.recentitem small{color:var(--muted);font-size:10px}
+
+.empty{display:none;text-align:center;padding:60px;border:1px dashed var(--line);border-radius:20px;color:var(--muted)}
+footer{display:flex;justify-content:space-between;margin-top:65px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:10px}
+
+.modal{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.dialog{width:min(500px,100%);padding:25px;border:1px solid var(--line);background:var(--modal-bg);border-radius:24px;box-shadow:0 35px 100px var(--shadow-color)}
+.dialoghead{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.dialog h2{margin:0;font-size:19px}
+.dialog p{color:var(--muted);font-size:13px;line-height:1.6;margin:0}
+.close{width:34px;height:34px;border:0;border-radius:10px;background:var(--panel);color:var(--text);cursor:pointer;display:grid;place-items:center;transition:.2s}
+.close:hover{background:var(--panel-hover)}
+
+@media(max-width:1000px){.grid,.recentgrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){
+  .app{width:calc(100% - 24px);padding-top:14px}
+  .top{margin-bottom:42px}
+  .brand small{display:none}
+  .hero h1{font-size:42px}
+  .hero p{font-size:14px}
+  .kbd{display:none}
+  .grid,.recentgrid{grid-template-columns:1fr}
+  .head{align-items:flex-start;flex-direction:column}
+  .card{min-height:190px}
+  footer{flex-direction:column;gap:10px}
+}
+@media(max-width:420px){.hero h1{font-size:37px}.searchbox{padding-left:14px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <a class="brand" href="#">
+      <div class="logo" aria-hidden="true">◈</div>
+      <div>Manual Hub<small>Personal knowledge system</small></div>
+    </a>
+    <div class="actions">
+      <button class="icon" id="theme" aria-label="Prepnúť tmavý/svetlý režim" title="Vzhľad">☼</button>
+      <button class="icon" id="settings" aria-label="Otvoriť nastavenia" title="Nastavenia">⚙</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow"><span class="dot" aria-hidden="true"></span> Your personal knowledge system</div>
+      <h1>Všetko na jednom <span class="grad">mieste.</span></h1>
+      <p>Manuály, príkazy, scripting, programovanie a AI zdroje. Jeden čistý priestor, z ktorého sa dostaneš ku všetkému, čo si vytvoríš.</p>
+      
+      <form class="searchbox" role="search" onSubmit="return false;">
+        <span aria-hidden="true">⌕</span>
+        <input id="search" type="search" placeholder="Hľadať manuály, príkazy, témy..." autocomplete="off" aria-label="Vyhľadávanie">
+        <button type="button" class="clear" id="clear" aria-label="Vymazať vyhľadávanie">×</button>
+        <span class="kbd" aria-hidden="true">/</span>
+      </form>
+    </section>
+
+    <section class="section">
+      <div class="head">
+        <div>
+          <h2>Všetky manuály</h2>
+          <p>Vyber si nástroj alebo prefiltruj obsah podľa kategórie.</p>
+        </div>
+        <div class="filters" id="filters" role="tablist" aria-label="Filtre kategórií"></div>
+      </div>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="empty" aria-live="polite">
+        <strong>Nič sme nenašli</strong><br>Skús iný názov, príkaz alebo kategóriu.
+      </div>
+    </section>
+
+    <section class="recent">
+      <div class="head">
+        <div>
+          <h2>Naposledy otvorené</h2>
+          <p>Rýchly prístup k tomu, na čom si naposledy pracoval.</p>
+        </div>
+      </div>
+      <div class="recentgrid" id="recent"></div>
+    </section>
+  </main>
+
+  <footer>
+    <span>MANUAL HUB · Personal knowledge system</span>
+    <span>● Local workspace · GitHub Pages ready</span>
+  </footer>
+</div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="dialog">
+    <div class="dialoghead">
+      <h2 id="modal-title">Nastavenia</h2>
+      <button class="close" id="close" aria-label="Zatvoriť nastavenia">×</button>
+    </div>
+    <p>Dashboard je pripravený na tvoje budúce manuály. Odkazy a položky sa nastavujú v JavaScripte nižšie.</p>
+  </div>
+</div>
+
+<script>
+const manuals = [
+  {id:"linux",title:"Linux & Bash",description:"Commands, shell scripting, permissions a každodenná práca v termináli.",icon:"🐧",category:"System",count:"124 topics",url:"#",keywords:"linux bash shell terminal commands chmod chown scripting ubuntu permissions",glow:"#7ee787"},
+  {id:"python",title:"Python",description:"Syntax, scripting, automatizácia, knižnice a praktické Python poznámky.",icon:"🐍",category:"Programming",count:"86 topics",url:"#",keywords:"python programming syntax pip venv loops functions classes automation",glow:"#ffd43b"},
+  {id:"prompting",title:"AI Prompting",description:"Prompt engineering, štruktúry promptov, techniky a AI workflow.",icon:"🤖",category:"AI",count:"42 topics",url:"#",keywords:"ai prompt prompting prompt engineering chatgpt llm agents workflow",glow:"#a78bfa"},
+  {id:"powershell",title:"PowerShell",description:"Windows automation, PowerShell syntax, cmdlets a užitočné príkazy.",icon:"💻",category:"System",count:"— topics",url:"#",keywords:"powershell windows cmdlet terminal automation script shell",glow:"#4da6ff"},
+  {id:"web",title:"Web Development",description:"HTML, CSS, JavaScript a všetko potrebné pre moderný web.",icon:"🌐",category:"Web",count:"— topics",url:"#",keywords:"html css javascript js web frontend responsive dom github pages",glow:"#48d6c8"},
+  {id:"databases",title:"Databases",description:"SQL, databázové príkazy, modelovanie a práca s dátami.",icon:"🗄️",category:"Data",count:"— topics",url:"#",keywords:"database databases sql mysql postgresql sqlite query data",glow:"#ff9f43"},
+  {id:"tools",title:"Tools & Commands",description:"Krátke cheat sheety, utility, Git, sieťové a systémové príkazy.",icon:"🔧",category:"Tools",count:"— topics",url:"#",keywords:"tools git github commands cheatsheet utility network curl ssh",glow:"#9ca3af"}
+];
+
+let category = "All";
+const $ = id => document.getElementById(id);
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[c]));
+}
+
+function getFavs() {
+  try { return JSON.parse(localStorage.getItem("mh_favs") || "[]"); } 
+  catch(e) { return []; }
+}
+
+function renderFilters() {
+  const cats = ["All", ...new Set(manuals.map(x => x.category))];
+  $("filters").innerHTML = cats.map(c => `
+    <button class="filter ${c === category ? "active" : ""}" data-c="${esc(c)}" role="tab" aria-selected="${c === category}">
+      ${esc(c)}
+    </button>
+  `).join("");
+
+  document.querySelectorAll(".filter").forEach(b => {
+    b.onclick = () => {
+      category = b.dataset.c;
+      renderFilters();
+      render();
+    };
+  });
+}
+
+function render() {
+  const q = $("search").value.toLowerCase().trim();
+  const favList = getFavs();
+
+  const list = manuals.filter(m => 
+    (category === "All" || m.category === category) &&
+    (!q || [m.title, m.description, m.category, m.keywords].join(" ").toLowerCase().includes(q))
+  );
+
+  $("grid").innerHTML = list.map(m => {
+    const isFav = favList.includes(m.id);
+    return `
+      <article class="card" tabindex="0" data-id="${m.id}" style="--glow:${m.glow}">
+        <div class="toprow">
+          <div class="appicon">${m.icon}</div>
+          <button type="button" class="star ${isFav ? "on" : ""}" aria-label="Pridať do obľúbených" data-id="${m.id}">
+            ${isFav ? "★" : "☆"}
+          </button>
+        </div>
+        <h3>${esc(m.title)}</h3>
+        <p>${esc(m.description)}</p>
+        <div class="bottom">
+          <span class="tag">${esc(m.category)}</span>
+          <span>${esc(m.count)}</span>
+          <span class="arrow" aria-hidden="true">→</span>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  $("empty").style.display = list.length ? "none" : "block";
+
+  document.querySelectorAll(".card").forEach(c => {
+    c.onclick = e => {
+      const starBtn = e.target.closest(".star");
+      if (starBtn) {
+        e.stopPropagation();
+        toggleFav(starBtn.dataset.id);
+      } else {
+        openManual(c.dataset.id);
+      }
+    };
+
+    c.onkeydown = e => {
+      if (e.key === "Enter" || e.key === " ") {
+        if (e.target.classList.contains("star")) return;
+        e.preventDefault();
+        openManual(c.dataset.id);
+      }
+    };
+  });
+}
+
+function toggleFav(id) {
+  let a = getFavs();
+  a = a.includes(id) ? a.filter(x => x !== id) : [...a, id];
+  localStorage.setItem("mh_favs", JSON.stringify(a));
+  render();
+}
+
+function openManual(id) {
+  const m = manuals.find(x => x.id === id);
+  if (!m) return;
+
+  try {
+    let r = JSON.parse(localStorage.getItem("mh_recent") || "[]").filter(x => x !== id);
+    r.unshift(id);
+    localStorage.setItem("mh_recent", JSON.stringify(r.slice(0, 6)));
+  } catch(e) {}
+
+  renderRecent();
+
+  if (m.url !== "#") {
+    location.href = m.url;
+  } else {
+    alert(m.title + " — nastav URL v poli url v JavaScripte.");
+  }
+}
+
+function renderRecent() {
+  let r = [];
+  try {
+    r = JSON.parse(localStorage.getItem("mh_recent") || "[]")
+      .map(id => manuals.find(m => m.id === id))
+      .filter(Boolean);
+  } catch(e) {}
+
+  $("recent").innerHTML = r.length ? r.map(m => `
+    <div class="recentitem" tabindex="0" data-id="${m.id}">
+      <div class="mini">${m.icon}</div>
+      <div>
+        <strong>${esc(m.title)}</strong>
+        <small>${esc(m.category)}</small>
+      </div>
+    </div>
+  `).join("") : `<div class="recentitem" style="grid-column:1/-1;color:var(--muted)">Zatiaľ tu nič nie je — otvor niektorý manuál.</div>`;
+
+  document.querySelectorAll(".recentitem[data-id]").forEach(x => {
+    const handleOpen = () => openManual(x.dataset.id);
+    x.onclick = handleOpen;
+    x.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handleOpen(); } };
+  });
+}
+
+// Search Inputs
+$("search").oninput = () => {
+  $("clear").classList.toggle("show", !!$("search").value);
+  render();
+};
+
+$("clear").onclick = () => {
+  $("search").value = "";
+  $("clear").classList.remove("show");
+  render();
+  $("search").focus();
+};
+
+document.addEventListener("keydown", e => {
+  const activeEl = document.activeElement;
+  const isInputActive = activeEl && (activeEl.tagName === "INPUT" || activeEl.tagName === "TEXTAREA" || activeEl.isContentEditable);
+  
+  if (e.key === "/" && !isInputActive) {
+    e.preventDefault();
+    $("search").focus();
+  } else if (e.key === "Escape" && $("modal").classList.contains("open")) {
+    closeModal();
+  }
+});
+
+// Theme Management
+function initTheme() {
+  const savedTheme = localStorage.getItem("mh_theme") || "dark";
+  document.documentElement.setAttribute("data-theme", savedTheme);
+}
+
+$("theme").onclick = () => {
+  const currentTheme = document.documentElement.getAttribute("data-theme");
+  const nextTheme = currentTheme === "light" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", nextTheme);
+  localStorage.setItem("mh_theme", nextTheme);
+};
+
+// Modal Controls
+function openModal() {
+  $("modal").classList.add("open");
+  document.body.classList.add("modal-open");
+}
+
+function closeModal() {
+  $("modal").classList.remove("open");
+  document.body.classList.remove("modal-open");
+}
+
+$("settings").onclick = openModal;
+$("close").onclick = closeModal;
+$("modal").onclick = e => { if (e.target === $("modal")) closeModal(); };
+
+// Init
+initTheme();
+renderFilters();
+render();
+renderRecent();
+</script>
+</body>
+</html>
